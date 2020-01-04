@@ -1,25 +1,113 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
 output: 
-  html_document:
-    keep_md: true
+  html_document: 
+    keep_md: yes
 ---
 
+# Reproducible Research Week 2 Assignment
 
-## Loading and preprocessing the data
+First step is to load in the data set. Make sure the directory is set to where the data is stored.
+
+```{r load data}
+        act <- read.csv("activity.csv")
+```
+
+Below is the total number of steps taken per day.
+
+```{r steps per day}
+        library(dplyr)
+        library(knitr)
+        steps <-  act %>% group_by(date) %>% summarize("steps_per_day" = sum(steps, na.rm = TRUE))
+        kable(steps)
+```
+
+Below is a histogram of the steps taken per day. Although this information would be better shown in a barplot.
+
+``` {r step histogram}
+        steps$date <- as.Date(steps$date, format = "%Y-%m-%d")
+        with(steps, plot(date, steps_per_day, type = "h"))
+```
+
+
+```{r mean steps}
+        mean <- round(sum(steps$steps_per_day) / nrow(steps),2)
+```
+
+The mean number of steps taken per day is `r mean`.
+
+```{r median steps}
+        med <- median(steps$steps_per_day)
+```
+
+The median number of steps taken per day is `r med`.
 
 
 
-## What is mean total number of steps taken per day?
+This time series shows the average number of steps taken in each five minute time interval:
+
+```{r time series}
+        library(ggplot2)
+        avg_intervals <- act %>% group_by(interval) %>% summarize(avg = mean(steps, na.rm = TRUE))
+        g <- ggplot(avg_intervals, aes(x = interval, y = avg))
+        g <- g + geom_line(color = "blue", size = 1)
+        g <- g + xlab("Five Minute Intervals") + ylab("Average Steps Taken")
+        g
+```
 
 
 
-## What is the average daily activity pattern?
+
+```{r max interval}
+        max_int <- avg_intervals$interval[which.max(avg_intervals$avg)]
+```
+
+The time interval with the maximum number of steps is `r max_int`.
+
+```{r missing count}
+        missing <- sum(!complete.cases(act))
+```
+
+The total number of rows in the original data set with missing values is `r missing`.
 
 
 
-## Imputing missing values
+
+We will impute the missing values based on the average of that respective five minute interval. Note that averages needed to be rounded to the nearest step in order for the coalesce function to work (also taking a fraction of a step does not make much sense practically).
+
+```{r impute}
+        act2 <- act %>% left_join(avg_intervals, by = "interval") %>% 
+                        mutate(imp_steps = coalesce(steps,as.integer(round(avg,0)))) %>%
+                        select(-steps, -avg)
+```
 
 
+``` {r impute mean and median}
+        steps2 <- act2 %>% group_by(date) %>% summarize("steps_per_day" = sum(imp_steps))
+        imp_mean <- round(sum(steps2$steps_per_day) / nrow(steps2),2)
+        imp_med <- median(steps2$steps_per_day)
+        mean_diff <- imp_mean - mean
+        med_diff <- imp_med - med
+        total_diff <- sum(steps2$steps_per_day) - sum(steps$steps_per_day)
+```
 
-## Are there differences in activity patterns between weekdays and weekends?
+The mean number of steps taken per day is `r imp_mean`.The mean with imputed values is `r mean_diff` steps larger than the mean with NAs excluded. The median number of steps taken per day is `r imp_med`. The median with imputed values is `r med_diff` larger than the median with NAs excluded. Using imputed values provided an additional `r total_diff` steps over the two month period compared to the just excluding NAs.
+
+Here is a histogram of step taken each day with NA values imputed by the interval average: 
+
+``` {r impute histogram}
+        steps2$date <- as.Date(steps2$date, format = "%Y-%m-%d")
+        with(steps2, plot(date, steps_per_day, type = "h"))
+```
+
+Now we will check for activity differences based on weekends and weekdays. Here are two time series showing the average number of steps per five minute interval separated by weekends and weekdays.
+
+```{r weekday}
+        act2$date <- as.Date(act2$date, format = "%Y-%m-%d")
+        act_day <- act2 %>% mutate(day = weekdays(date)) %>% 
+                        mutate(week = ifelse(grepl("Saturday|Sunday", day), "weekend", "weekday"))
+        act_day$week <- as.factor(act_day$week)
+        act_day <- act_day %>% group_by(interval, week) %>% summarize(avg = mean(imp_steps))
+        
+        library(lattice)
+        xyplot(avg ~ interval | week, data = act_day, layout = c(1, 2), type = "l", ylab = "number of steps")
+```
