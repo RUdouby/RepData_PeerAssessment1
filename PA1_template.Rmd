@@ -8,13 +8,13 @@ output:
 
 First step is to load in the data set. Make sure the directory is set to where the data is stored.
 
-```{r load data}
+```{r load_data}
         act <- read.csv("activity.csv")
 ```
 
 Below is the total number of steps taken per day.
 
-```{r steps per day}
+```{r steps_per_day}
         library(dplyr)
         library(knitr)
         steps <-  act %>% group_by(date) %>% summarize("steps_per_day" = sum(steps, na.rm = TRUE))
@@ -23,19 +23,19 @@ Below is the total number of steps taken per day.
 
 Below is a histogram of the steps taken per day. Although this information would be better shown in a barplot.
 
-``` {r step histogram}
+``` {r step_histogram}
         steps$date <- as.Date(steps$date, format = "%Y-%m-%d")
         with(steps, plot(date, steps_per_day, type = "h"))
 ```
 
 
-```{r mean steps}
+```{r mean_steps}
         mean <- round(sum(steps$steps_per_day) / nrow(steps),2)
 ```
 
 The mean number of steps taken per day is `r mean`.
 
-```{r median steps}
+```{r median_steps}
         med <- median(steps$steps_per_day)
 ```
 
@@ -45,7 +45,7 @@ The median number of steps taken per day is `r med`.
 
 This time series shows the average number of steps taken in each five minute time interval:
 
-```{r time series}
+```{r time_series}
         library(ggplot2)
         avg_intervals <- act %>% group_by(interval) %>% summarize(avg = mean(steps, na.rm = TRUE))
         g <- ggplot(avg_intervals, aes(x = interval, y = avg))
@@ -57,13 +57,13 @@ This time series shows the average number of steps taken in each five minute tim
 
 
 
-```{r max interval}
+```{r max_interval}
         max_int <- avg_intervals$interval[which.max(avg_intervals$avg)]
 ```
 
 The time interval with the maximum number of steps is `r max_int`.
 
-```{r missing count}
+```{r missing_count}
         missing <- sum(!complete.cases(act))
 ```
 
@@ -81,7 +81,7 @@ We will impute the missing values based on the average of that respective five m
 ```
 
 
-``` {r impute mean and median}
+``` {r impute_mean_and_median}
         steps2 <- act2 %>% group_by(date) %>% summarize("steps_per_day" = sum(imp_steps))
         imp_mean <- round(sum(steps2$steps_per_day) / nrow(steps2),2)
         imp_med <- median(steps2$steps_per_day)
@@ -94,7 +94,7 @@ The mean number of steps taken per day is `r imp_mean`.The mean with imputed val
 
 Here is a histogram of step taken each day with NA values imputed by the interval average: 
 
-``` {r impute histogram}
+``` {r impute_histogram}
         steps2$date <- as.Date(steps2$date, format = "%Y-%m-%d")
         with(steps2, plot(date, steps_per_day, type = "h"))
 ```

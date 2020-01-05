@@ -128,7 +128,7 @@ Below is a histogram of the steps taken per day. Although this information would
         with(steps, plot(date, steps_per_day, type = "h"))
 ```
 
-![](PA1_template_files/figure-html/step histogram-1.png)<!-- -->
+![](PA1_template_files/figure-html/step_histogram-1.png)<!-- -->
 
 
 
@@ -166,7 +166,7 @@ This time series shows the average number of steps taken in each five minute tim
         g
 ```
 
-![](PA1_template_files/figure-html/time series-1.png)<!-- -->
+![](PA1_template_files/figure-html/time_series-1.png)<!-- -->
 
 
 
@@ -218,7 +218,7 @@ Here is a histogram of step taken each day with NA values imputed by the interva
         with(steps2, plot(date, steps_per_day, type = "h"))
 ```
 
-![](PA1_template_files/figure-html/impute histogram-1.png)<!-- -->
+![](PA1_template_files/figure-html/impute_histogram-1.png)<!-- -->
 
 Now we will check for activity differences based on weekends and weekdays. Here are two time series showing the average number of steps per five minute interval separated by weekends and weekdays.
 
