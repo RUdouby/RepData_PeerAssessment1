@@ -18,7 +18,7 @@ Below is the total number of steps taken per day.
         library(dplyr)
         library(knitr)
         steps <-  act %>% group_by(date) %>% summarize("steps_per_day" = sum(steps, na.rm = TRUE))
-        kable(steps)
+        kable(steps, format = "markdown")
 ```
 
 Below is a histogram of the steps taken per day. Although this information would be better shown in a barplot.

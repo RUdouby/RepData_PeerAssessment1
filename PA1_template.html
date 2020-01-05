@@ -383,7 +383,7 @@ summary {
 <pre class="r"><code>        library(knitr)</code></pre>
 <pre><code>## Warning: package &#39;knitr&#39; was built under R version 3.5.3</code></pre>
 <pre class="r"><code>        steps &lt;-  act %&gt;% group_by(date) %&gt;% summarize(&quot;steps_per_day&quot; = sum(steps, na.rm = TRUE))
-        kable(steps)</code></pre>
+        kable(steps, format = &quot;markdown&quot;)</code></pre>
 <table>
 <thead>
 <tr class="header">
